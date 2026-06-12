@@ -1,0 +1,7 @@
+backend/venv/
+__pycache__/
+*.pyc
+
+# Chặn node_modules của Frontend sau này
+node_modules/
+dist/

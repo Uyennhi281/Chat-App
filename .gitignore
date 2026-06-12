@@ -1,6 +1,9 @@
-backend/venv/
-__pycache__/
-*.pyc
+# Chặn đúng thư mục môi trường ảo của python
+backend/Include/
+backend/Lib/
+backend/Scripts/
+backend/__pycache__/
+backend/pyvenv.cfg
 
 # Chặn node_modules của Frontend sau này
 node_modules/

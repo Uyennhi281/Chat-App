@@ -1,6 +1,6 @@
 import Header from './components/Header';
 import Banner from './components/Banner';
-import ProductList from './components/ProductList';
+import ProductPage from './pages/ProductPage';
 import Footer from './components/Footer';
 
 const App = () => {
@@ -11,8 +11,8 @@ const App = () => {
       <Header title="ShopHub" />
       <Banner subtitle="Welcome to our store" buttonText="Shop Now" />
       
-      {/* Danh sách sản phẩm lấy từ API thực tế nằm ở đây */}
-      <ProductList />
+      {/* Trang Catalog tích hợp tính năng Tìm kiếm - Lọc - Sắp xếp */}
+      <ProductPage />
       
       <Footer
         studentName={studentName}

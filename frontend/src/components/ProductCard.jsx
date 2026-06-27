@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 const ProductCard = ({ name, price, category, imageUrl, description }) => {
   // Tính năng nâng cao: Hiện badge Premium nếu giá > 50
   const isPremium = price > 50;
@@ -52,20 +54,21 @@ const ProductCard = ({ name, price, category, imageUrl, description }) => {
       <p style={{ margin: '4px 0', fontWeight: 'bold', color: '#1976d2', fontSize: '1.2rem' }}>${price}</p>
       <p style={{ margin: '4px 0', fontSize: '0.85rem', color: '#666', flexGrow: 1 }}>{shortenedDescription}</p>
       
-      <button
-        style={{
-          marginTop: 'auto',
-          padding: '10px 12px',
-          backgroundColor: '#1976d2',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          fontWeight: 'bold'
-        }}
+      {/* Button Link */}
+      <Link
+        to={`/products/${id}`}
+        style={{ 
+          marginTop: 'auto', 
+          padding: '10px 12px', 
+          backgroundColor: '#1976d2', 
+          color: '#fff', 
+          borderRadius: '4px', 
+          textAlign: 'center', 
+          textDecoration: 'none', 
+          fontWeight: 'bold' }}
       >
         View Details
-      </button>
+      </Link>
     </div>
   );
 };

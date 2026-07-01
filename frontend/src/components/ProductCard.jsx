@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-const ProductCard = ({ name, price, category, imageUrl, description }) => {
+const ProductCard = ({ id, name, price, category, imageUrl, description }) => {
   // Tính năng nâng cao: Hiện badge Premium nếu giá > 50
   const isPremium = price > 50;
 

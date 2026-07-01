@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "name": "\u0110\u1ed3ng h\u1ed3",
+        "price": 100.0,
+        "category": "\u0110eo tay",
+        "description": "string",
+        "imagePath": "data_images\\citizen-bi5124-50l-nam-thumb-638702014143012592-600x600.jpg",
+        "costPrice": 0.0
+    },
+    {
+        "id": 2,
+        "name": "\u00c1o ba l\u1ed7",
+        "price": 10.0,
+        "category": "Qu\u1ea7n \u00e1o",
+        "description": "string",
+        "imagePath": "data_images\\img_2446_1x900x900x4_e03f00053bf04d46b4df28b4e9a91698.webp",
+        "costPrice": 10.0
+    }
+]

@@ -1,9 +1,25 @@
 import { Routes, Route } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material';
+import CssBaseline from '@mui/material/CssBaseline';
 import Header from './components/Header';
 import Banner from './components/Banner';
 import ProductPage from './pages/ProductPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import Footer from './components/Footer';
+import RegisterPage from './pages/RegisterPage';
+import LoginPage from './pages/LoginPage';
+
+// Theme chuyên nghiệp
+const theme = createTheme({
+  palette: {
+    primary: { main: '#1976d2' },
+    secondary: { main: '#ff6b00' },
+    background: { default: '#f5f5f5' },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  },
+});
 
 const HomePage = () => (
   <>
@@ -42,94 +58,53 @@ const CartPage = () => (
   </section>
 );
 
-const LoginPage = () => (
-  <section
-    style={{
-      padding: '40px 24px',
-      textAlign: 'center',
-      backgroundColor: '#fff',
-      margin: '40px auto',
-      borderRadius: '8px',
-      maxWidth: '400px',
-    }}
-  >
-    <h2>Login</h2>
-    <input
-      type="text"
-      placeholder="Username / Email"
-      style={{
-        width: '100%',
-        padding: '10px',
-        margin: '10px 0',
-        boxSizing: 'border-box',
-      }}
-    />
-    <input
-      type="password"
-      placeholder="Password"
-      style={{
-        width: '100%',
-        padding: '10px',
-        margin: '10px 0',
-        boxSizing: 'border-box',
-      }}
-    />
-    <button
-      style={{
-        width: '100%',
-        padding: '10px',
-        backgroundColor: '#1976d2',
-        color: '#fff',
-        border: 'none',
-        marginTop: '10px',
-      }}
-    >
-      Login
-    </button>
-  </section>
-);
-
 const App = () => {
   const studentName = 'Nguyễn Cao Uyên Nhi';
 
   return (
-    <div
-      style={{
-        fontFamily: 'Arial, sans-serif',
-        maxWidth: '1200px',
-        margin: '0 auto',
-        backgroundColor: '#fafafa',
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <Header title="ShopHub" />
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <div
+        style={{
+          fontFamily: 'Arial, sans-serif',
+          maxWidth: '1200px',
+          margin: '0 auto',
+          backgroundColor: '#fafafa',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {/* Header MUI mới - bỏ prop title */}
+        <Header />
 
-      <main style={{ flex: 1 }}>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/products" element={<ProductPage />} />
-          <Route path="/products/:id" element={<ProductDetailPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="*"
-            element={
-              <section style={{ padding: '40px', textAlign: 'center' }}>
-                <h2>404 - Page not found</h2>
-              </section>
-            }
-          />
-        </Routes>
-      </main>
+        <main style={{ flex: 1 }}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/products" element={<ProductPage />} />
+            <Route path="/products/:id" element={<ProductDetailPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            {/* Xóa dòng trùng /login */}
+            <Route
+              path="*"
+              element={
+                <section style={{ padding: '40px', textAlign: 'center' }}>
+                  <h2>404 - Page not found</h2>
+                </section>
+              }
+            />
+          </Routes>
+        </main>
 
-      <Footer
-        studentName={studentName}
-        courseName="Full-Stack Web Development"
-        semester="Summer 2026"
-      />
-    </div>
+        <Footer
+          studentName={studentName}
+          courseName="Full-Stack Web Development"
+          semester="Summer 2026"
+        />
+      </div>
+    </ThemeProvider>
   );
 };
 

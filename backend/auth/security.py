@@ -6,8 +6,10 @@ from jose import jwt, JWTError
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
-    """Hash password trước khi lưu vào DB – không bao giờ lưu plaintext"""
-    return pwd_context.hash(password)
+    """Hash password - truncate to 72 bytes for bcrypt compatibility"""
+    # Bcrypt limit: 72 bytes
+    password_bytes = password.encode('utf-8')[:72]
+    return pwd_context.hash(password_bytes)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """So sánh password người dùng nhập với hash trong DB"""

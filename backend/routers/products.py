@@ -5,12 +5,12 @@ from typing import List, Optional
 from database import get_db
 from models.product import ProductDB
 from schemas.product import ProductCreate, ProductUpdate, ProductRead
+from auth.deps import require_admin
 
 router = APIRouter(prefix="/products", tags=["products"])
 
 
 def product_to_read(p: ProductDB) -> ProductRead:
-    """Helper – chuyển ProductDB sang ProductRead (map image_path → imageUrl)"""
     return ProductRead(
         id=p.id,
         name=p.name,
@@ -58,10 +58,13 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
     return product_to_read(product)
 
 
-# ─────────────────────────────────────────
-# POST /products  – tạo sản phẩm mới
-# ─────────────────────────────────────────
-@router.post("", response_model=ProductRead, status_code=status.HTTP_201_CREATED)
+# ─── POST /products – CHỈ ADMIN ─────────────────────────────
+@router.post(
+    "",
+    response_model=ProductRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin)],  # ← Bảo vệ route
+)
 def create_product(payload: ProductCreate, db: Session = Depends(get_db)):
     new_product = ProductDB(
         name=payload.name,
@@ -72,7 +75,7 @@ def create_product(payload: ProductCreate, db: Session = Depends(get_db)):
     )
     db.add(new_product)
     db.commit()
-    db.refresh(new_product)  # load lại để có id, created_at, ...
+    db.refresh(new_product)
     return product_to_read(new_product)
 
 
@@ -104,17 +107,15 @@ def update_product(
     return product_to_read(product)
 
 
-# ─────────────────────────────────────────
-# DELETE /products/{id}  – xóa sản phẩm
-# ─────────────────────────────────────────
-@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+# ─── DELETE /products/{id} – CHỈ ADMIN ──────────────────────
+@router.delete(
+    "/{product_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[Depends(require_admin)],  # ← Bảo vệ route
+)
 def delete_product(product_id: int, db: Session = Depends(get_db)):
     product = db.query(ProductDB).filter(ProductDB.id == product_id).first()
     if not product:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Không tìm thấy sản phẩm với id={product_id}"
-        )
+        raise HTTPException(status_code=404, detail="Không tìm thấy sản phẩm")
     db.delete(product)
     db.commit()
-    # 204 No Content – không trả về body

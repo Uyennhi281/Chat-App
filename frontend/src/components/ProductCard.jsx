@@ -1,8 +1,10 @@
 import { Card, CardMedia, CardContent, Typography, Button, Box } from '@mui/material';
-import { AddShoppingCart as AddCartIcon } from '@mui/icons-material';
+import { AddShoppingCart as AddCartIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/useAuth';
 
 const ProductCard = ({ product, onAddToCart }) => {
+    const { isAdmin } = useAuth();
   return (
     <Card
       sx={{
@@ -84,6 +86,18 @@ const ProductCard = ({ product, onAddToCart }) => {
           >
             Thêm vào giỏ
           </Button>
+
+          {/* Chỉ ADMIN thấy nút Delete */}
+          {isAdmin && (
+            <Button
+              variant="outlined" fullWidth color="error"
+              startIcon={<DeleteIcon />}
+              onClick={() => onDelete?.(product.id)}
+            >
+              Xóa sản phẩm
+            </Button>
+          )}
+          
         </Box>
       </CardContent>
     </Card>

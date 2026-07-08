@@ -1,20 +1,42 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Container, Typography, TextField, Button,
-  Box, MenuItem, Paper, Alert,
+  Box, MenuItem, Paper, Alert, CircularProgress,
 } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Edit as EditIcon } from '@mui/icons-material';
 import { productsApi } from '../../api/productsApi';
 
 const categories = ['phone', 'laptop', 'tablet', 'accessories'];
 
-const ProductCreatePage = () => {
-  const navigate = useNavigate();
+const ProductEditPage = () => {
+  const navigate    = useNavigate();
+  const { id }      = useParams();
   const [form, setForm]       = useState({ name: '', price: '', category: '', description: '', imageUrl: '' });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState('');
   const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        const data = await productsApi.getById(id);
+        setForm({
+          name:        data.name,
+          price:       data.price,
+          category:    data.category,
+          description: data.description,
+          imageUrl:    data.imageUrl || '',
+        });
+      } catch {
+        setError('Không thể tải thông tin sản phẩm');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
 
   const handleChange = (e) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -22,25 +44,28 @@ const ProductCreatePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setSaving(true);
     setError('');
     try {
-      await productsApi.create({ ...form, price: parseFloat(form.price) });
-      setSuccess('Tạo sản phẩm thành công!');
+      await productsApi.update(id, { ...form, price: parseFloat(form.price) });
+      setSuccess('Cập nhật thành công!');
       setTimeout(() => navigate('/admin/products'), 1500);
     } catch {
-      setError('Tạo sản phẩm thất bại. Vui lòng kiểm tra lại.');
+      setError('Cập nhật thất bại. Vui lòng thử lại.');
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) return (
+    <Box display="flex" justifyContent="center" py={6}><CircularProgress /></Box>
+  );
 
   return (
     <Container maxWidth="sm">
       <Paper sx={{ p: 4 }}>
-        <Typography variant="h5" fontWeight="bold" mb={3}
-          display="flex" alignItems="center" gap={1}>
-          <AddIcon color="primary" /> Tạo sản phẩm mới
+        <Typography variant="h5" fontWeight="bold" mb={3} display="flex" alignItems="center" gap={1}>
+          <EditIcon color="warning" /> Sửa sản phẩm
         </Typography>
 
         {error   && <Alert severity="error"   sx={{ mb: 2 }}>{error}</Alert>}
@@ -71,8 +96,9 @@ const ProductCreatePage = () => {
           </Box>
 
           <Box display="flex" gap={2} mt={1}>
-            <Button type="submit" variant="contained" disabled={loading} fullWidth>
-              {loading ? 'Đang tạo...' : 'Tạo sản phẩm'}
+            <Button type="submit" variant="contained" color="warning"
+              disabled={saving} fullWidth>
+              {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
             </Button>
             <Button variant="outlined" onClick={() => navigate('/admin/products')} fullWidth>
               Hủy
@@ -84,4 +110,4 @@ const ProductCreatePage = () => {
   );
 };
 
-export default ProductCreatePage;
+export default ProductEditPage;

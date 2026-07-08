@@ -7,8 +7,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:
     """Hash password - truncate to 72 bytes for bcrypt compatibility"""
-    # Bcrypt limit: 72 bytes
-    password_bytes = password.encode('utf-8')[:72]
+    password_bytes = password.encode('utf-8')[:72]  # Giới hạn 72 bytes
     return pwd_context.hash(password_bytes)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

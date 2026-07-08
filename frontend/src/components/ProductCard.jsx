@@ -1,10 +1,21 @@
-import { Card, CardMedia, CardContent, Typography, Button, Box } from '@mui/material';
-import { AddShoppingCart as AddCartIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Card, CardMedia, CardContent, Typography, Button, Box, IconButton, Tooltip } from '@mui/material';
+import {
+  AddShoppingCart as AddCartIcon,
+  Delete as DeleteIcon,
+  Visibility as ViewIcon,
+} from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 import { useAuth } from '../auth/useAuth';
 
-const ProductCard = ({ product, onAddToCart }) => {
-    const { isAdmin } = useAuth();
+const ProductCard = ({ product, onDelete }) => {
+  const { addToCart } = useCart();
+  const { isAdmin }   = useAuth();
+
+  const handleAddToCart = () => {
+    addToCart(product, 1);
+  };
+
   return (
     <Card
       sx={{
@@ -29,7 +40,7 @@ const ProductCard = ({ product, onAddToCart }) => {
           cursor: 'pointer',
         }}
       />
-      
+
       <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         <Typography
           variant="h6"
@@ -66,38 +77,35 @@ const ProductCard = ({ product, onAddToCart }) => {
         </Typography>
 
         <Box sx={{ mt: 'auto' }}>
-          <Typography
-            variant="h5"
-            color="primary"
-            sx={{ fontWeight: 'bold', mb: 1 }}
-          >
-            {product.price.toLocaleString('vi-VN')} ₫
+          <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', mb: 1 }}>
+            {Number(product.price).toLocaleString('vi-VN')} ₫
           </Typography>
 
           <Button
             variant="contained"
             fullWidth
             startIcon={<AddCartIcon />}
-            onClick={() => onAddToCart(product)}
+            onClick={handleAddToCart}
             sx={{
               backgroundColor: '#ff6b00',
               '&:hover': { backgroundColor: '#e65100' },
+              mb: isAdmin ? 1 : 0,
             }}
           >
             Thêm vào giỏ
           </Button>
 
-          {/* Chỉ ADMIN thấy nút Delete */}
           {isAdmin && (
             <Button
-              variant="outlined" fullWidth color="error"
+              variant="outlined"
+              fullWidth
+              color="error"
               startIcon={<DeleteIcon />}
               onClick={() => onDelete?.(product.id)}
             >
-              Xóa sản phẩm
+              Xóa
             </Button>
           )}
-          
         </Box>
       </CardContent>
     </Card>

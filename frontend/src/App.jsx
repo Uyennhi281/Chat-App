@@ -1,20 +1,34 @@
 import { Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
+
+// Layouts
+import AdminLayout from './layouts/AdminLayout';
+
+// Components
 import Header from './components/Header';
 import Banner from './components/Banner';
 import Footer from './components/Footer';
-import ProductPage from './pages/ProductPage';
+
+// Pages - Public
+import ProductPage       from './pages/ProductPage';
 import ProductDetailPage from './pages/ProductDetailPage';
-import RegisterPage from './pages/RegisterPage';
-import LoginPage from './pages/LoginPage';
-import AdminRoute from './routes/AdminRoute';
+import LoginPage         from './pages/LoginPage';
+import RegisterPage      from './pages/RegisterPage';
+import CartPage          from './pages/CartPage';
+
+// Pages - Admin
+import AdminDashboard    from './pages/admin/AdminDashboard';
 import ProductCreatePage from './pages/admin/ProductCreatePage';
+import ProductEditPage   from './pages/admin/ProductEditPage';
+
+// Routes
+import AdminRoute from './routes/AdminRoute';
 
 const theme = createTheme({
   palette: {
-    primary: { main: '#1976d2' },
-    secondary: { main: '#ff6b00' },
+    primary:    { main: '#1976d2' },
+    secondary:  { main: '#ff6b00' },
     background: { default: '#f5f5f5' },
   },
 });
@@ -24,51 +38,58 @@ const HomePage = () => (
     <Banner subtitle="Welcome to our store" buttonText="Shop Now" buttonLink="/products" />
     <section style={{ padding: '40px 24px', textAlign: 'center', backgroundColor: '#fff', margin: '20px', borderRadius: '8px' }}>
       <h2>Welcome to ShopHub</h2>
-      <p style={{ color: '#666', marginTop: '12px' }}>
-        Browse our products, add to cart, and enjoy shopping!
-      </p>
+      <p style={{ color: '#666', marginTop: '12px' }}>Browse our products and enjoy shopping!</p>
     </section>
   </>
 );
 
-const CartPage = () => (
-  <section style={{ padding: '40px 24px', textAlign: 'center' }}>
-    <h2>Shopping Cart</h2>
-    <p style={{ color: '#666' }}>Cart sẽ được làm ở session tiếp theo.</p>
-  </section>
+// Layout component cho public pages
+const PublicLayout = ({ children }) => (
+  <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <Header />
+    <main style={{ flex: 1 }}>
+      {children}
+    </main>
+    <Footer
+      studentName="Nguyễn Cao Uyên Nhi"
+      courseName="Full-Stack Web Development"
+      semester="Summer 2026"
+    />
+  </div>
 );
 
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <Header />
-        <main style={{ flex: 1 }}>
-          <Routes>
-            {/* Public routes */}
-            <Route path="/"          element={<HomePage />} />
-            <Route path="/products"  element={<ProductPage />} />
-            <Route path="/products/:id" element={<ProductDetailPage />} />
-            <Route path="/cart"      element={<CartPage />} />
-            <Route path="/login"     element={<LoginPage />} />
-            <Route path="/register"  element={<RegisterPage />} />
+      <Routes>
+        {/* Public routes - có Header + Footer */}
+        <Route path="/"             element={<PublicLayout><HomePage /></PublicLayout>} />
+        <Route path="/products"     element={<PublicLayout><ProductPage /></PublicLayout>} />
+        <Route path="/products/:id" element={<PublicLayout><ProductDetailPage /></PublicLayout>} />
+        <Route path="/cart"         element={<PublicLayout><CartPage /></PublicLayout>} />
+        <Route path="/login"        element={<PublicLayout><LoginPage /></PublicLayout>} />
+        <Route path="/register"     element={<PublicLayout><RegisterPage /></PublicLayout>} />
 
-            {/* Admin-only routes */}
-            <Route element={<AdminRoute />}>
-              <Route path="/admin/products/new" element={<ProductCreatePage />} />
-            </Route>
+        {/* Admin routes - có Sidebar, không có Header/Footer */}
+        <Route element={<AdminRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/admin"                      element={<AdminDashboard />} />
+            <Route path="/admin/products"             element={<AdminDashboard />} />
+            <Route path="/admin/products/new"         element={<ProductCreatePage />} />
+            <Route path="/admin/products/edit/:id"    element={<ProductEditPage />} />
+          </Route>
+        </Route>
 
-            {/* 404 */}
-            <Route path="*" element={
-              <section style={{ padding: '60px', textAlign: 'center' }}>
-                <h2>404 - Không tìm thấy trang</h2>
-              </section>
-            } />
-          </Routes>
-        </main>
-        <Footer studentName="Nguyễn Cao Uyên Nhi" courseName="Full-Stack Web Development" semester="Summer 2026" />
-      </div>
+        {/* 404 */}
+        <Route path="*" element={
+          <PublicLayout>
+            <section style={{ padding: '60px', textAlign: 'center' }}>
+              <h2>404 - Không tìm thấy trang</h2>
+            </section>
+          </PublicLayout>
+        } />
+      </Routes>
     </ThemeProvider>
   );
 };

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { ShoppingCart as ShoppingCartIcon } from '@mui/icons-material';
 import {
   Box, Drawer, List, ListItem, ListItemButton,
   ListItemIcon, ListItemText, Typography, Divider,
@@ -116,6 +117,15 @@ const AdminLayout = () => {
                   sx={menuItemStyle('/admin/users')}>
                   <ListItemIcon sx={{ minWidth: 36, color: 'white' }}><UserIcon fontSize="small" /></ListItemIcon>
                   <ListItemText primary="Người dùng" primaryTypographyProps={{ fontSize: 13 }} />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton component={Link} to="/admin/orders"
+                  sx={menuItemStyle('/admin/orders')}>
+                  <ListItemIcon sx={{ minWidth: 36, color: 'white' }}>
+                    <ShoppingCartIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Đơn hàng" primaryTypographyProps={{ fontSize: 13 }} />
                 </ListItemButton>
               </ListItem>
             </List>

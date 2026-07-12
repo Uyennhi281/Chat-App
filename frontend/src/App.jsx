@@ -25,6 +25,12 @@ import ProductEditPage   from './pages/admin/ProductEditPage';
 // Routes
 import AdminRoute from './routes/AdminRoute';
 
+// Pages - Order
+import OrderHistoryPage  from './pages/OrderHistoryPage';
+import OrderDetailPage   from './pages/OrderDetailPage';
+import AdminOrdersPage   from './pages/admin/AdminOrdersPage';
+import PrivateRoute      from './routes/PrivateRoute';
+
 const theme = createTheme({
   palette: {
     primary:    { main: '#1976d2' },
@@ -63,6 +69,13 @@ const App = () => {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Routes>
+        {/* Private routes - cần đăng nhập */}
+        <Route element={<PrivateRoute />}>
+          <Route path="/orders"     element={<PublicLayout><OrderHistoryPage /></PublicLayout>} />
+          <Route path="/orders/:id" element={<PublicLayout><OrderDetailPage /></PublicLayout>} />
+        </Route>
+
+
         {/* Public routes - có Header + Footer */}
         <Route path="/"             element={<PublicLayout><HomePage /></PublicLayout>} />
         <Route path="/products"     element={<PublicLayout><ProductPage /></PublicLayout>} />
@@ -78,6 +91,8 @@ const App = () => {
             <Route path="/admin/products"             element={<AdminDashboard />} />
             <Route path="/admin/products/new"         element={<ProductCreatePage />} />
             <Route path="/admin/products/edit/:id"    element={<ProductEditPage />} />
+            <Route path="/admin/orders"            element={<AdminOrdersPage />} />  
+            <Route path="/admin/orders/:id"        element={<OrderDetailPage />} /> 
           </Route>
         </Route>
 

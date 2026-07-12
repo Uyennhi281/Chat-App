@@ -117,6 +117,12 @@ const Header = ({ cartCount = 0, onSearch }) => {
             <Button component={Link} to="/products" sx={navButtonStyle('/products')}>
               Sản phẩm
             </Button>
+            {user && (
+            <Button component={Link} to="/orders" sx={navButtonStyle('/orders')}>
+            Đơn hàng
+            </Button>
+            )}
+
             {user?.role === 'ADMIN' && (
               <Button component={Link} to="/admin" sx={navButtonStyle('/admin')}>
                 Quản lý

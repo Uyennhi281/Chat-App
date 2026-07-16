@@ -31,6 +31,15 @@ import OrderDetailPage   from './pages/OrderDetailPage';
 import AdminOrdersPage   from './pages/admin/AdminOrdersPage';
 import PrivateRoute      from './routes/PrivateRoute';
 
+// Pages - Payment
+import OrderPaymentPage  from './pages/OrderPaymentPage';
+import StripeSuccessPage from './pages/payment/StripeSuccessPage';
+import StripeCancelPage  from './pages/payment/StripeCancelPage';
+import PayPalSuccessPage from './pages/payment/PayPalSuccessPage';
+import PayPalCancelPage  from './pages/payment/PayPalCancelPage';
+import VNPaySuccessPage  from './pages/payment/VNPaySuccessPage';
+import VNPayCancelPage   from './pages/payment/VNPayCancelPage';
+
 const theme = createTheme({
   palette: {
     primary:    { main: '#1976d2' },
@@ -74,6 +83,11 @@ const App = () => {
           <Route path="/orders"     element={<PublicLayout><OrderHistoryPage /></PublicLayout>} />
           <Route path="/orders/:id" element={<PublicLayout><OrderDetailPage /></PublicLayout>} />
         </Route>
+        <Route element={<PrivateRoute />}>
+        <Route path="/orders"               element={<PublicLayout><OrderHistoryPage /></PublicLayout>} />
+        <Route path="/orders/:id"           element={<PublicLayout><OrderDetailPage /></PublicLayout>} />
+        <Route path="/orders/:id/payment"   element={<PublicLayout><OrderPaymentPage /></PublicLayout>} />  {/* ← THÊM */}
+        </Route>
 
 
         {/* Public routes - có Header + Footer */}
@@ -83,6 +97,13 @@ const App = () => {
         <Route path="/cart"         element={<PublicLayout><CartPage /></PublicLayout>} />
         <Route path="/login"        element={<PublicLayout><LoginPage /></PublicLayout>} />
         <Route path="/register"     element={<PublicLayout><RegisterPage /></PublicLayout>} />
+        {/* Payment callback routes - PUBLIC (redirect từ cổng thanh toán) */}
+        <Route path="/payment/stripe/success"  element={<PublicLayout><StripeSuccessPage /></PublicLayout>} />
+        <Route path="/payment/stripe/cancel"   element={<PublicLayout><StripeCancelPage /></PublicLayout>} />
+        <Route path="/payment/paypal/success"  element={<PublicLayout><PayPalSuccessPage /></PublicLayout>} />
+        <Route path="/payment/paypal/cancel"   element={<PublicLayout><PayPalCancelPage /></PublicLayout>} />
+        <Route path="/payment/vnpay/success"   element={<PublicLayout><VNPaySuccessPage /></PublicLayout>} />
+        <Route path="/payment/vnpay/cancel"    element={<PublicLayout><VNPayCancelPage /></PublicLayout>} />
 
         {/* Admin routes - có Sidebar, không có Header/Footer */}
         <Route element={<AdminRoute />}>

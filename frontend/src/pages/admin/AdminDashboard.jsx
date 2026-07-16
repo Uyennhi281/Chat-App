@@ -14,6 +14,7 @@ import {
   Search as SearchIcon,
 } from '@mui/icons-material';
 import { productsApi } from '../../api/productsApi';
+import { PLACEHOLDER_SMALL } from '../../utils/placeholder';
 
 const categoryColors = {
   phone:       'primary',
@@ -123,10 +124,11 @@ const AdminDashboard = () => {
                   <TableCell>
                     <Box
                       component="img"
-                      src={product.imageUrl || 'https://via.placeholder.com/80x60'}
+                      src={product.imageUrl ? `http://localhost:8000${product.imageUrl}` : PLACEHOLDER_SMALL}
+
                       alt={product.name}
                       sx={{ width: 80, height: 60, objectFit: 'cover', borderRadius: 1 }}
-                      onError={e => { e.target.src = 'https://via.placeholder.com/80x60'; }}
+                      onError={e => { e.target.src = PLACEHOLDER_SMALL; }}
                     />
                   </TableCell>
                   <TableCell>

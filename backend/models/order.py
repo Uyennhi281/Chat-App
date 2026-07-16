@@ -20,8 +20,8 @@ class OrderItemDB(Base):
     __tablename__ = "order_items"
 
     id            = Column(Integer, primary_key=True, index=True)
-    order_id      = Column(Integer, ForeignKey("orders.id"), nullable=False, index=True)
-    product_id    = Column(Integer, ForeignKey("products.id"), nullable=False)
+    order_id      = Column(Integer, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False, index=True)
+    product_id    = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)  # ← THÊM ondelete="CASCADE"
     product_name  = Column(String(100), nullable=False)
     product_price = Column(Float, nullable=False)
     quantity      = Column(Integer, nullable=False)

@@ -14,6 +14,7 @@ import {
 import { ordersApi } from '../api/ordersApi';
 import { useAuth } from '../auth/useAuth';
 
+
 const ALLOWED_STATUSES = ['PLACED', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED'];
 
 const statusColors = {
@@ -23,6 +24,8 @@ const statusColors = {
   COMPLETED:  'success',
   CANCELED:   'error',
 };
+
+
 
 const OrderDetailPage = () => {
   const { id }       = useParams();
@@ -112,6 +115,18 @@ const OrderDetailPage = () => {
               size="medium"
             />
           )}
+
+          {order.status !== 'PAID' && order.status !== 'CANCELED' && !isAdmin && (
+          <Button
+            variant="contained"
+            color="success"
+            onClick={() => navigate(`/orders/${order.id}/payment`)}
+            sx={{ ml: 2 }}
+            >
+            💳 Thanh toán ngay
+          </Button>
+          )}
+          
         </Box>
 
         <Divider sx={{ mb: 3 }} />

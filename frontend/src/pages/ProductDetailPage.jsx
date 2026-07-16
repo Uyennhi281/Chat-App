@@ -6,17 +6,17 @@ import {
   Tabs, Tab, Avatar, Stack, CircularProgress,
 } from '@mui/material';
 import {
-  Add as PlusIcon,
-  Remove as MinusIcon,
-  ShoppingCart as CartIcon,
-  FlashOn as FlashIcon,
-  FavoriteBorder as HeartIcon,
-  LocalShipping as LocalShippingIcon,
+  Add as PlusIcon, Remove as MinusIcon,
+  ShoppingCart as CartIcon, FlashOn as FlashIcon,
+  FavoriteBorder as HeartIcon, LocalShipping as LocalShippingIcon,
   Store as StoreIcon,
 } from '@mui/icons-material';
 import { productsApi } from '../api/productsApi';
 import { useCart } from '../context/CartContext';
 import { getToken } from '../auth/token';
+
+// ← THÊM DÒNG NÀY (định nghĩa PLACEHOLDER)
+const PLACEHOLDER = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTAwIiBoZWlnaHQ9IjQwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIyMCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
 
 const COLORS = [
   { name: 'Đen', code: '#000000' },
@@ -39,13 +39,16 @@ const ProductDetailPage = () => {
   const [tab, setTab] = useState(0);
   const [timeLeft, setTimeLeft] = useState({ hours: 2, minutes: 28, seconds: 56 });
 
-  const images = [
-    product?.imageUrl || 'https://via.placeholder.com/500',
-    'https://via.placeholder.com/500?text=View+2',
-    'https://via.placeholder.com/500?text=View+3',
-    'https://via.placeholder.com/500?text=View+4',
-    'https://via.placeholder.com/500?text=View+5',
-  ];
+  // Sử dụng PLACEHOLDER đã định nghĩa ở trên
+  const images = product?.imageUrl
+    ? [
+        `http://localhost:8000${product.imageUrl}`,
+        PLACEHOLDER,
+        PLACEHOLDER,
+        PLACEHOLDER,
+        PLACEHOLDER,
+      ]
+    : [PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER, PLACEHOLDER];
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -119,7 +122,7 @@ const ProductDetailPage = () => {
             <Box
               component="img"
               src={images[selectedImage]}
-              onError={(e) => { e.target.src = 'https://via.placeholder.com/500'; }}
+              onError={(e) => { e.target.src = PLACEHOLDER; }}
               sx={{ width: '100%', height: 450, objectFit: 'contain', bgcolor: '#fff', borderRadius: 1 }}
             />
             <Stack direction="row" spacing={1} mt={2} sx={{ justifyContent: 'center' }}>
@@ -163,7 +166,7 @@ const ProductDetailPage = () => {
 
             {/* Flash Sale */}
             <Box sx={{
-              background: 'linear-gradient(90deg, #ee4d2d 0%, #ff7337 100%)',
+              background: 'linear-gradient(90deg, #2d43ee 0%, #379bff 100%)',
               color: 'white', p: 1.5, borderRadius: '4px 4px 0 0',
               display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             }}>
@@ -235,7 +238,7 @@ const ProductDetailPage = () => {
                     variant={selectedColor === idx ? 'contained' : 'outlined'}
                     sx={{
                       minWidth: 80,
-                      borderColor: selectedColor === idx ? '#ee4d2d' : '#ddd',
+                      borderColor: selectedColor === idx ? '#0b32df' : '#ddd',
                       color: selectedColor === idx ? '#ee4d2d' : '#333',
                       bgcolor: selectedColor === idx ? '#ffeee8' : 'white',
                     }}
@@ -287,7 +290,7 @@ const ProductDetailPage = () => {
                 size="large"
                 startIcon={<CartIcon />}
                 onClick={handleAddToCart}
-                sx={{ flex: 1, borderColor: '#ee4d2d', color: '#ee4d2d', '&:hover': { bgcolor: '#ffeee8' }, py: 1.5 }}
+                sx={{ flex: 1, borderColor: '#2d5aee', color: '#0f08c4', '&:hover': { bgcolor: '#ffeee8' }, py: 1.5 }}
               >
                 Thêm Vào Giỏ
               </Button>
@@ -295,7 +298,7 @@ const ProductDetailPage = () => {
                 variant="contained"
                 size="large"
                 onClick={handleBuyNow}
-                sx={{ flex: 1, bgcolor: '#ee4d2d', '&:hover': { bgcolor: '#d73211' }, py: 1.5 }}
+                sx={{ flex: 1, bgcolor: '#2d5aee', '&:hover': { bgcolor: '#0f08c4' }, py: 1.5 }}
               >
                 Mua Ngay
               </Button>

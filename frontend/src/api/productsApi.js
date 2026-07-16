@@ -49,11 +49,20 @@ export const productsApi = {
   },
 
   async delete(id) {
-    try {
-      await axiosClient.delete(`/products/${id}`, authHeader());
-    } catch (error) {
-      handleApiError(error, 'Failed to delete product');
-      throw error;
-    }
+  const token = getToken();
+  if (!token) {
+    throw new Error('Vui lòng đăng nhập');
+  }
+  
+  try {
+    await axiosClient.delete(`/products/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  } catch (error) {
+    // Log chi tiết lỗi
+    console.error('Delete error:', error.response?.status, error.response?.data);
+    throw error;
+  }
+
   },
 };

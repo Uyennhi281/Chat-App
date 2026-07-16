@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { ordersApi } from '../api/ordersApi';
 import { getToken } from '../auth/token';
+import { PLACEHOLDER_SMALL } from '../utils/placeholder';
 
 const CartPage = () => {
   const navigate = useNavigate();
@@ -83,10 +84,11 @@ const CartPage = () => {
                   <TableRow key={item.id} sx={{ '&:hover': { backgroundColor: '#fafafa' } }}>
                     <TableCell>
                       <Box display="flex" alignItems="center" gap={2}>
-                        <Box component="img" src={item.imageUrl || 'https://via.placeholder.com/60'}
-                          alt={item.name}
-                          sx={{ width: 64, height: 64, objectFit: 'contain', borderRadius: 1, backgroundColor: '#f5f5f5' }}
-                          onError={e => { e.target.src = 'https://via.placeholder.com/60'; }}
+                        <Box
+                          component="img"
+                          src={item.imageUrl ? `http://localhost:8000${item.imageUrl}` : PLACEHOLDER_SMALL}
+                          onError={(e) => { e.target.src = PLACEHOLDER_SMALL; }}
+                          sx={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 1, bgcolor: '#f5f5f5' }}
                         />
                         <Typography fontWeight={500}>{item.name}</Typography>
                       </Box>

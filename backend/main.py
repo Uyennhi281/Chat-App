@@ -5,8 +5,9 @@ from fastapi.staticfiles import StaticFiles
 from database import engine, Base
 from models.product import ProductDB
 from models.user import UserDB
-from models.order import OrderDB, OrderItemDB   # ← THÊM
-from routers import products, users, auth, orders  # ← THÊM orders
+from models.order import OrderDB, OrderItemDB
+from routers import products, users, auth, orders, upload, payments
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,7 +29,9 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(products.router)
 app.include_router(users.router)
 app.include_router(auth.router)
-app.include_router(orders.router)   # ← THÊM
+app.include_router(orders.router)
+app.include_router(upload.router)
+app.include_router(payments.router)
 
 
 @app.get("/")

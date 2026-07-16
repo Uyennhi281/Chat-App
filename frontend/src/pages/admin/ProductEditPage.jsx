@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   Container, Typography, TextField, Button,
-  Box, MenuItem, Paper, Alert, CircularProgress,
+  Box, MenuItem, Paper, Alert, CircularProgress, Grid,
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { productsApi } from '../../api/productsApi';
+import ImageUploader from '../../components/ImageUploader';
 
 const categories = ['phone', 'laptop', 'tablet', 'accessories'];
 
@@ -80,12 +81,15 @@ const ProductEditPage = () => {
               inputProps={{ min: 0 }} sx={{ width: 160 }} />
           </Box>
 
-          <TextField label="Category" name="category" select
-            value={form.category} onChange={handleChange} required>
-            {categories.map(c => (
-              <MenuItem key={c} value={c}>{c}</MenuItem>
-            ))}
-          </TextField>
+          <Grid item xs={12}>
+            <Typography variant="subtitle2" gutterBottom>
+                Hình ảnh sản phẩm
+            </Typography>
+            <ImageUploader
+              value={form.imageUrl}
+              onChange={(url) => setForm({ ...form, imageUrl: url })}
+            />
+          </Grid>
 
           <Box display="flex" gap={2}>
             <TextField label="Mô tả" name="description" multiline rows={3}

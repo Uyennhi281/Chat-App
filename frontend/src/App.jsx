@@ -16,6 +16,7 @@ import ProductDetailPage from './pages/ProductDetailPage';
 import LoginPage         from './pages/LoginPage';
 import RegisterPage      from './pages/RegisterPage';
 import CartPage          from './pages/CartPage';
+import HomePage          from './pages/HomePage';
 
 // Pages - Admin
 import AdminDashboard    from './pages/admin/AdminDashboard';
@@ -48,15 +49,6 @@ const theme = createTheme({
   },
 });
 
-const HomePage = () => (
-  <>
-    <Banner subtitle="Welcome to our store" buttonText="Shop Now" buttonLink="/products" />
-    <section style={{ padding: '40px 24px', textAlign: 'center', backgroundColor: '#fff', margin: '20px', borderRadius: '8px' }}>
-      <h2>Welcome to ShopHub</h2>
-      <p style={{ color: '#666', marginTop: '12px' }}>Browse our products and enjoy shopping!</p>
-    </section>
-  </>
-);
 
 // Layout component cho public pages
 const PublicLayout = ({ children }) => (
@@ -80,13 +72,9 @@ const App = () => {
       <Routes>
         {/* Private routes - cần đăng nhập */}
         <Route element={<PrivateRoute />}>
-          <Route path="/orders"     element={<PublicLayout><OrderHistoryPage /></PublicLayout>} />
-          <Route path="/orders/:id" element={<PublicLayout><OrderDetailPage /></PublicLayout>} />
-        </Route>
-        <Route element={<PrivateRoute />}>
-        <Route path="/orders"               element={<PublicLayout><OrderHistoryPage /></PublicLayout>} />
-        <Route path="/orders/:id"           element={<PublicLayout><OrderDetailPage /></PublicLayout>} />
-        <Route path="/orders/:id/payment"   element={<PublicLayout><OrderPaymentPage /></PublicLayout>} />  {/* ← THÊM */}
+          <Route path="/orders"             element={<PublicLayout><OrderHistoryPage /></PublicLayout>} />
+          <Route path="/orders/:id"         element={<PublicLayout><OrderDetailPage /></PublicLayout>} />
+          <Route path="/orders/:id/payment" element={<PublicLayout><OrderPaymentPage /></PublicLayout>} />
         </Route>
 
 

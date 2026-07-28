@@ -8,3 +8,6 @@ backend/pyvenv.cfg
 # Chặn node_modules của Frontend sau này
 node_modules/
 dist/
+
+# Local Claude Code config (không cần chia sẻ chung repo)
+.claude/

@@ -1,9 +1,12 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material';
 import CssBaseline from '@mui/material/CssBaseline';
 
 // Layouts
 import AdminLayout from './layouts/AdminLayout';
+
+// Auth
+import { useAuth } from './auth/useAuth';
 
 // Components
 import Header from './components/Header';
@@ -15,16 +18,24 @@ import ProductPage       from './pages/ProductPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import LoginPage         from './pages/LoginPage';
 import RegisterPage      from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage  from './pages/ResetPasswordPage';
 import CartPage          from './pages/CartPage';
 import HomePage          from './pages/HomePage';
 
 // Pages - Admin
 import AdminDashboard    from './pages/admin/AdminDashboard';
+import AdminStatsPage    from './pages/admin/AdminStatsPage';
+import AdminUsersPage    from './pages/admin/AdminUsersPage';
 import ProductCreatePage from './pages/admin/ProductCreatePage';
 import ProductEditPage   from './pages/admin/ProductEditPage';
 
 // Routes
 import AdminRoute from './routes/AdminRoute';
+import ShipperRoute from './routes/ShipperRoute';
+
+// Pages - Shipper
+import ShipperDashboard from './pages/shipper/ShipperDashboard';
 
 // Pages - Order
 import OrderHistoryPage  from './pages/OrderHistoryPage';
@@ -51,19 +62,28 @@ const theme = createTheme({
 
 
 // Layout component cho public pages
-const PublicLayout = ({ children }) => (
-  <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-    <Header />
-    <main style={{ flex: 1 }}>
-      {children}
-    </main>
-    <Footer
-      studentName="Nguyễn Cao Uyên Nhi"
-      courseName="Full-Stack Web Development"
-      semester="Summer 2026"
-    />
-  </div>
-);
+const PublicLayout = ({ children }) => {
+  const { isShipper } = useAuth();
+
+  // Shipper chỉ được thấy trang quản lý đơn giao hàng, không truy cập được các trang khác
+  if (isShipper) {
+    return <Navigate to="/shipper" replace />;
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header />
+      <main style={{ flex: 1 }}>
+        {children}
+      </main>
+      <Footer
+        studentName="Nguyễn Cao Uyên Nhi"
+        courseName="Full-Stack Web Development"
+        semester="Summer 2026"
+      />
+    </div>
+  );
+};
 
 const App = () => {
   return (
@@ -85,6 +105,8 @@ const App = () => {
         <Route path="/cart"         element={<PublicLayout><CartPage /></PublicLayout>} />
         <Route path="/login"        element={<PublicLayout><LoginPage /></PublicLayout>} />
         <Route path="/register"     element={<PublicLayout><RegisterPage /></PublicLayout>} />
+        <Route path="/forgot-password" element={<PublicLayout><ForgotPasswordPage /></PublicLayout>} />
+        <Route path="/reset-password"  element={<PublicLayout><ResetPasswordPage /></PublicLayout>} />
         {/* Payment callback routes - PUBLIC (redirect từ cổng thanh toán) */}
         <Route path="/payment/stripe/success"  element={<PublicLayout><StripeSuccessPage /></PublicLayout>} />
         <Route path="/payment/stripe/cancel"   element={<PublicLayout><StripeCancelPage /></PublicLayout>} />
@@ -93,14 +115,20 @@ const App = () => {
         <Route path="/payment/vnpay/success"   element={<PublicLayout><VNPaySuccessPage /></PublicLayout>} />
         <Route path="/payment/vnpay/cancel"    element={<PublicLayout><VNPayCancelPage /></PublicLayout>} />
 
+        {/* Shipper routes - giao diện riêng, không có Header/Footer (mobile app-like) */}
+        <Route element={<ShipperRoute />}>
+          <Route path="/shipper" element={<ShipperDashboard />} />
+        </Route>
+
         {/* Admin routes - có Sidebar, không có Header/Footer */}
         <Route element={<AdminRoute />}>
           <Route element={<AdminLayout />}>
-            <Route path="/admin"                      element={<AdminDashboard />} />
+            <Route path="/admin"                      element={<AdminStatsPage />} />
             <Route path="/admin/products"             element={<AdminDashboard />} />
             <Route path="/admin/products/new"         element={<ProductCreatePage />} />
             <Route path="/admin/products/edit/:id"    element={<ProductEditPage />} />
-            <Route path="/admin/orders"            element={<AdminOrdersPage />} />  
+            <Route path="/admin/users"                element={<AdminUsersPage />} />
+            <Route path="/admin/orders"            element={<AdminOrdersPage />} />
             <Route path="/admin/orders/:id"        element={<OrderDetailPage />} /> 
           </Route>
         </Route>

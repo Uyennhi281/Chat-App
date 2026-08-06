@@ -6,7 +6,9 @@ from database import engine, Base
 from models.product import ProductDB
 from models.user import UserDB
 from models.order import OrderDB, OrderItemDB
-from routers import products, users, auth, orders, upload, payments
+from models.review import ReviewDB
+from models.password_reset import PasswordResetTokenDB
+from routers import products, users, auth, orders, upload, payments, reviews, shipping, webhooks
 
 
 Base.metadata.create_all(bind=engine)
@@ -32,6 +34,9 @@ app.include_router(auth.router)
 app.include_router(orders.router)
 app.include_router(upload.router)
 app.include_router(payments.router)
+app.include_router(reviews.router)
+app.include_router(shipping.router)
+app.include_router(webhooks.router)
 
 
 @app.get("/")

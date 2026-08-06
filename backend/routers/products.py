@@ -19,6 +19,8 @@ def product_to_read(p: ProductDB) -> ProductRead:
         category=p.category,
         description=p.description,
         imageUrl=p.image_path,
+        stock=p.stock,
+        sold=p.sold,
     )
 
 
@@ -73,6 +75,8 @@ def create_product(payload: ProductCreate, db: Session = Depends(get_db)):
         category=payload.category,
         description=payload.description,
         image_path=payload.imageUrl,
+        stock=payload.stock,
+        sold=payload.sold,
     )
     db.add(new_product)
     db.commit()
@@ -102,6 +106,8 @@ def update_product(
     if payload.category    is not None: product.category    = payload.category
     if payload.description is not None: product.description = payload.description
     if payload.imageUrl    is not None: product.image_path  = payload.imageUrl
+    if payload.stock       is not None: product.stock       = payload.stock
+    if payload.sold        is not None: product.sold        = payload.sold
 
     db.commit()
     db.refresh(product)

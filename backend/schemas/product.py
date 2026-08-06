@@ -8,6 +8,8 @@ class ProductBase(BaseModel):
     price:       float = Field(..., gt=0)
     category:    str   = Field(..., min_length=3, max_length=50)
     description: str   = Field(..., min_length=5)
+    stock:       int   = Field(0, ge=0)
+    sold:        int   = Field(0, ge=0)
 
 
 class ProductCreate(ProductBase):
@@ -22,6 +24,8 @@ class ProductUpdate(BaseModel):
     category:    Optional[str]   = Field(None, min_length=3, max_length=50)
     description: Optional[str]   = Field(None, min_length=5)
     imageUrl:    Optional[str]   = None
+    stock:       Optional[int]   = Field(None, ge=0)
+    sold:        Optional[int]   = Field(None, ge=0)
 
 
 class ProductRead(BaseModel):
@@ -35,6 +39,8 @@ class ProductRead(BaseModel):
     category:    str
     description: str
     imageUrl:    str   # map từ image_path của DB
+    stock:       int
+    sold:        int
 
     class Config:
         from_attributes = True  # Pydantic v2 (dùng orm_mode=True nếu v1)

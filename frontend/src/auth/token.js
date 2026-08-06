@@ -17,6 +17,7 @@ export function clearToken() {
 // ── User info ──────────────────────────────────
 export function setUser(user) {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
+  window.dispatchEvent(new Event('shophub-auth-changed'));
 }
 
 export function getUser() {
@@ -32,4 +33,5 @@ export function clearUser() {
 export function logout() {
   clearToken();
   clearUser();
+  window.dispatchEvent(new Event('shophub-auth-changed'));
 }

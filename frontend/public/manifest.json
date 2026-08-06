@@ -1,0 +1,19 @@
+{
+  "name": "ShopHub Shipper",
+  "short_name": "ShopHub Shipper",
+  "description": "Ứng dụng nhận và giao đơn hàng dành cho Shipper nội bộ ShopHub",
+  "start_url": "/shipper",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1976d2",
+  "theme_color": "#1976d2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

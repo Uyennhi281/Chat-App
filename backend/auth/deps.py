@@ -48,3 +48,16 @@ def require_admin(user: UserDB = Depends(get_current_user)) -> UserDB:
             detail="Admin privileges required",
         )
     return user
+
+
+def require_shipper(user: UserDB = Depends(get_current_user)) -> UserDB:
+    """
+    Yêu cầu user phải có role SHIPPER.
+    Trả về 403 nếu role không phải SHIPPER (kể cả ADMIN - tách bạch quyền theo NV2).
+    """
+    if user.role != "SHIPPER":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Shipper privileges required",
+        )
+    return user

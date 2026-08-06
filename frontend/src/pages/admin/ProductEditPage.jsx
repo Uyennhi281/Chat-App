@@ -13,7 +13,7 @@ const categories = ['phone', 'laptop', 'tablet', 'accessories'];
 const ProductEditPage = () => {
   const navigate    = useNavigate();
   const { id }      = useParams();
-  const [form, setForm]       = useState({ name: '', price: '', category: '', description: '', imageUrl: '' });
+  const [form, setForm]       = useState({ name: '', price: '', category: '', description: '', imageUrl: '', stock: 0, sold: 0 });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState('');
@@ -29,6 +29,8 @@ const ProductEditPage = () => {
           category:    data.category,
           description: data.description,
           imageUrl:    data.imageUrl || '',
+          stock:       data.stock ?? 0,
+          sold:        data.sold ?? 0,
         });
       } catch {
         setError('Không thể tải thông tin sản phẩm');
@@ -48,7 +50,12 @@ const ProductEditPage = () => {
     setSaving(true);
     setError('');
     try {
-      await productsApi.update(id, { ...form, price: parseFloat(form.price) });
+      await productsApi.update(id, {
+        ...form,
+        price: parseFloat(form.price),
+        stock: parseInt(form.stock, 10) || 0,
+        sold:  parseInt(form.sold, 10) || 0,
+      });
       setSuccess('Cập nhật thành công!');
       setTimeout(() => navigate('/admin/products'), 1500);
     } catch {
@@ -97,6 +104,17 @@ const ProductEditPage = () => {
             <TextField label="URL hình ảnh" name="imageUrl"
               value={form.imageUrl} onChange={handleChange}
               placeholder="/static/product.jpg" fullWidth />
+          </Box>
+
+          <Box display="flex" gap={2}>
+            <TextField label="Tồn kho" name="stock" type="number"
+              value={form.stock} onChange={handleChange} required
+              inputProps={{ min: 0 }} fullWidth
+              helperText="Số lượng sản phẩm còn lại trong kho" />
+            <TextField label="Đã bán" name="sold" type="number"
+              value={form.sold} onChange={handleChange} required
+              inputProps={{ min: 0 }} fullWidth
+              helperText="Số lượng sản phẩm đã bán ra" />
           </Box>
 
           <Box display="flex" gap={2} mt={1}>

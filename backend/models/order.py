@@ -13,6 +13,14 @@ class OrderDB(Base):
     total_amount = Column(Float, nullable=False)
     created_at   = Column(DateTime(timezone=True), server_default=func.now())
 
+    # ── Shipping (Session 16) ──────────────────────────────────
+    shipping_provider = Column(String(20), nullable=False, default="IN_HOUSE")  # 'IN_HOUSE' | 'GHN'
+    tracking_code      = Column(String(100), nullable=True)   # mã vận đơn của đối tác (GHN)
+    shipping_fee       = Column(Float, nullable=False, default=0)
+    shipper_id         = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    delivery_lat       = Column(Float, nullable=True)  # tọa độ shipper ghi nhận khi nhận/giao đơn
+    delivery_lng       = Column(Float, nullable=True)
+
     items = relationship("OrderItemDB", back_populates="order", cascade="all, delete-orphan")
 
 

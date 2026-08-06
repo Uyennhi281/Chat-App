@@ -4,9 +4,12 @@ from typing import List
 
 from database import get_db
 from models.user import UserDB
-from schemas.user import UserCreate, UserRead
+from schemas.user import UserCreate, UserRead, UserRoleUpdate
+from auth.deps import require_admin
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+ALLOWED_ROLES = ["customer", "SHIPPER", "ADMIN"]
 
 
 # ─────────────────────────────────────────
@@ -36,18 +39,18 @@ def create_user(payload: UserCreate, db: Session = Depends(get_db)):
 
 
 # ─────────────────────────────────────────
-# GET /users  – danh sách users (safe fields)
+# GET /users  – danh sách users (safe fields) – CHỈ ADMIN
 # ─────────────────────────────────────────
-@router.get("", response_model=List[UserRead])
+@router.get("", response_model=List[UserRead], dependencies=[Depends(require_admin)])
 def list_users(db: Session = Depends(get_db)):
     users = db.query(UserDB).all()
     return users  # password_hash tự động bị ẩn bởi UserRead schema
 
 
 # ─────────────────────────────────────────
-# GET /users/{id}  – chi tiết user
+# GET /users/{id}  – chi tiết user – CHỈ ADMIN
 # ─────────────────────────────────────────
-@router.get("/{user_id}", response_model=UserRead)
+@router.get("/{user_id}", response_model=UserRead, dependencies=[Depends(require_admin)])
 def get_user(user_id: int, db: Session = Depends(get_db)):
     user = db.query(UserDB).filter(UserDB.id == user_id).first()
     if not user:
@@ -55,4 +58,26 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Không tìm thấy user với id={user_id}"
         )
+    return user
+
+
+# ─────────────────────────────────────────
+# PATCH /users/{id}/role – đổi vai trò – CHỈ ADMIN
+# ─────────────────────────────────────────
+@router.patch("/{user_id}/role", response_model=UserRead, dependencies=[Depends(require_admin)])
+def update_user_role(user_id: int, payload: UserRoleUpdate, db: Session = Depends(get_db)):
+    if payload.role not in ALLOWED_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Vai trò không hợp lệ: {payload.role}",
+        )
+    user = db.query(UserDB).filter(UserDB.id == user_id).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Không tìm thấy user với id={user_id}"
+        )
+    user.role = payload.role
+    db.commit()
+    db.refresh(user)
     return user

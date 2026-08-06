@@ -8,7 +8,7 @@ const authHeader = () => ({
 
 export const ordersApi = {
   // Checkout – gửi giỏ hàng
-  async checkout(cartItems) {
+  async checkout(cartItems, shippingProvider = 'IN_HOUSE', shippingFee = 0) {
     try {
       const payload = {
         items: cartItems.map((item) => ({
@@ -17,11 +17,27 @@ export const ordersApi = {
           price:      item.price,
           quantity:   item.quantity,
         })),
+        shipping_provider: shippingProvider,
+        shipping_fee:      shippingFee,
       };
       const response = await axiosClient.post('/orders/checkout', payload, authHeader());
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to place order');
+      throw error;
+    }
+  },
+
+  // Tính phí vận chuyển
+  async calculateShippingFee(shippingProvider) {
+    try {
+      const response = await axiosClient.post(
+        '/shipping/calculate-fee',
+        { shipping_provider: shippingProvider },
+      );
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to calculate shipping fee');
       throw error;
     }
   },
@@ -85,6 +101,58 @@ export const ordersApi = {
       return response.data;
     } catch (error) {
       handleApiError(error, 'Failed to update item quantity');
+      throw error;
+    }
+  },
+
+  // SHIPPER – đơn IN_HOUSE đang chờ nhận
+  async getShipperAvailable() {
+    try {
+      const response = await axiosClient.get('/orders/shipper/available', authHeader());
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to fetch available orders');
+      throw error;
+    }
+  },
+
+  // SHIPPER – đơn của tôi
+  async getShipperMy() {
+    try {
+      const response = await axiosClient.get('/orders/shipper/my', authHeader());
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to fetch shipper orders');
+      throw error;
+    }
+  },
+
+  // SHIPPER – nhận đơn
+  async claimOrder(orderId, location = {}) {
+    try {
+      const response = await axiosClient.patch(
+        `/orders/${orderId}/claim`,
+        { lat: location.lat ?? null, lng: location.lng ?? null },
+        authHeader(),
+      );
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to claim order');
+      throw error;
+    }
+  },
+
+  // SHIPPER – báo kết quả giao hàng
+  async deliverOrder(orderId, success, location = {}) {
+    try {
+      const response = await axiosClient.patch(
+        `/orders/${orderId}/deliver`,
+        { success, location: { lat: location.lat ?? null, lng: location.lng ?? null } },
+        authHeader(),
+      );
+      return response.data;
+    } catch (error) {
+      handleApiError(error, 'Failed to update delivery status');
       throw error;
     }
   },

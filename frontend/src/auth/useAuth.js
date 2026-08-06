@@ -11,5 +11,6 @@ export function useAuth() {
     user,
     token,
     isAdmin:         user?.role === 'ADMIN',
+    isShipper:       user?.role === 'SHIPPER',
   };
 }

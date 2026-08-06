@@ -1,9 +1,38 @@
-import { createContext, useContext, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { getUser } from '../auth/token';
 
 const CartContext = createContext(null);
 
+const cartKeyFor = (userId) => `shophub_cart_${userId ?? 'guest'}`;
+
+const loadCart = (userId) => {
+  try {
+    const raw = localStorage.getItem(cartKeyFor(userId));
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
 export const CartProvider = ({ children }) => {
-  const [items, setItems] = useState([]);
+  const [userId, setUserId] = useState(() => getUser()?.id ?? null);
+  const [items, setItems]   = useState(() => loadCart(userId));
+
+  // Chuyển sang giỏ hàng của tài khoản tương ứng mỗi khi đăng nhập/đăng xuất
+  useEffect(() => {
+    const handleAuthChange = () => {
+      const newUserId = getUser()?.id ?? null;
+      setUserId(newUserId);
+      setItems(loadCart(newUserId));
+    };
+    window.addEventListener('shophub-auth-changed', handleAuthChange);
+    return () => window.removeEventListener('shophub-auth-changed', handleAuthChange);
+  }, []);
+
+  // Lưu giỏ hàng của tài khoản hiện tại mỗi khi có thay đổi
+  useEffect(() => {
+    localStorage.setItem(cartKeyFor(userId), JSON.stringify(items));
+  }, [items, userId]);
 
   // ── Thêm vào giỏ ──────────────────────────────────────────
   const addToCart = (product, quantity = 1) => {

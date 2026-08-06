@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Container, Typography, Box, Button, Table, TableBody,
   TableCell, TableContainer, TableHead, TableRow, Paper,
   IconButton, Divider, Alert, Chip, CircularProgress,
+  RadioGroup, FormControlLabel, Radio,
 } from '@mui/material';
 import {
   Add as PlusIcon, Remove as MinusIcon,
@@ -20,6 +21,28 @@ const CartPage = () => {
   const { items, removeFromCart, updateQuantity, clearCart, totalQuantity, totalPrice } = useCart();
   const [placingOrder, setPlacingOrder] = useState(false);
   const [error, setError] = useState('');
+  const [shippingProvider, setShippingProvider] = useState('IN_HOUSE');
+  const [shippingFee, setShippingFee] = useState(0);
+  const [feeLoading, setFeeLoading] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchFee = async () => {
+      setFeeLoading(true);
+      try {
+        const data = await ordersApi.calculateShippingFee(shippingProvider);
+        if (!cancelled) setShippingFee(data.fee);
+      } catch {
+        if (!cancelled) setShippingFee(0);
+      } finally {
+        if (!cancelled) setFeeLoading(false);
+      }
+    };
+    fetchFee();
+    return () => { cancelled = true; };
+  }, [shippingProvider]);
+
+  const finalTotal = Number(totalPrice) + Number(shippingFee || 0);
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
@@ -33,11 +56,11 @@ const CartPage = () => {
     setPlacingOrder(true);
     setError('');
     try {
-      const order = await ordersApi.checkout(items);
+      const order = await ordersApi.checkout(items, shippingProvider, shippingFee);
       clearCart();
       navigate(`/orders/${order.id}`);
-    } catch {
-      setError('Đặt hàng thất bại. Vui lòng thử lại.');
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Đặt hàng thất bại. Vui lòng thử lại.');
     } finally {
       setPlacingOrder(false);
     }
@@ -160,9 +183,36 @@ const CartPage = () => {
 
             <Divider sx={{ my: 2 }} />
 
+            <Typography variant="subtitle2" fontWeight="bold" mb={1}>Đơn vị vận chuyển</Typography>
+            <RadioGroup
+              value={shippingProvider}
+              onChange={(e) => setShippingProvider(e.target.value)}
+              sx={{ mb: 1 }}
+            >
+              <FormControlLabel
+                value="IN_HOUSE"
+                control={<Radio size="small" />}
+                label={<Typography variant="body2">Giao hàng hỏa tốc (Cửa hàng tự giao)</Typography>}
+              />
+              <FormControlLabel
+                value="GHN"
+                control={<Radio size="small" />}
+                label={
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <Typography variant="body2">Giao hàng tiết kiệm (GHN)</Typography>
+                    <Chip label="Chưa khả dụng" size="small" color="default" />
+                  </Box>
+                }
+              />
+            </RadioGroup>
+
             <Box display="flex" justifyContent="space-between" mb={1}>
               <Typography color="text.secondary">Phí vận chuyển:</Typography>
-              <Chip label="Miễn phí" size="small" color="success" />
+              {feeLoading ? (
+                <CircularProgress size={16} />
+              ) : (
+                <Typography fontWeight={500}>{Number(shippingFee).toLocaleString('vi-VN')} ₫</Typography>
+              )}
             </Box>
 
             <Divider sx={{ my: 2 }} />
@@ -170,7 +220,7 @@ const CartPage = () => {
             <Box display="flex" justifyContent="space-between" mb={3}>
               <Typography variant="h6" fontWeight="bold">Tổng cộng:</Typography>
               <Typography variant="h6" fontWeight="bold" color="primary">
-                {Number(totalPrice).toLocaleString('vi-VN')} ₫
+                {finalTotal.toLocaleString('vi-VN')} ₫
               </Typography>
             </Box>
 

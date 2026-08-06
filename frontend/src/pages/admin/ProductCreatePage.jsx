@@ -17,6 +17,8 @@ const ProductCreatePage = () => {
     category: '',
     description: '',
     imageUrl: '',
+    stock: 0,
+    sold: 0,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -34,6 +36,8 @@ const ProductCreatePage = () => {
       await productsApi.create({
         ...form,
         price: parseFloat(form.price),
+        stock: parseInt(form.stock, 10) || 0,
+        sold:  parseInt(form.sold, 10) || 0,
       });
       setSuccess('Tạo sản phẩm thành công!');
       setTimeout(() => navigate('/admin/products'), 1500);
@@ -108,6 +112,34 @@ const ProductCreatePage = () => {
                 onChange={handleChange}
                 required
                 fullWidth
+              />
+            </Grid>
+
+            <Grid item xs={6}>
+              <TextField
+                label="Tồn kho"
+                name="stock"
+                type="number"
+                value={form.stock}
+                onChange={handleChange}
+                required
+                inputProps={{ min: 0 }}
+                fullWidth
+                helperText="Số lượng sản phẩm có sẵn"
+              />
+            </Grid>
+
+            <Grid item xs={6}>
+              <TextField
+                label="Đã bán"
+                name="sold"
+                type="number"
+                value={form.sold}
+                onChange={handleChange}
+                required
+                inputProps={{ min: 0 }}
+                fullWidth
+                helperText="Thường để 0 với sản phẩm mới"
               />
             </Grid>
 

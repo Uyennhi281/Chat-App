@@ -1,6 +1,7 @@
-import { Card, CardMedia, CardContent, Typography, Button, Box } from '@mui/material';
+import React from 'react';
+import { Card, Typography, Button, Box } from '@mui/material';
 import { AddShoppingCart as AddCartIcon, Delete as DeleteIcon } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../auth/useAuth';
 
@@ -10,93 +11,142 @@ const PLACEHOLDER = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9I
 const ProductCard = ({ product, onDelete }) => {
   const { addToCart } = useCart();
   const { isAdmin } = useAuth();
-
-  const handleAddToCart = () => addToCart(product, 1);
+  const navigate = useNavigate();
 
   // Thêm domain backend vào URL
   const imageUrl = product.imageUrl
     ? `http://localhost:8000${product.imageUrl}`
     : PLACEHOLDER;
 
-  return (
-    <Card sx={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      transition: 'transform 0.2s, box-shadow 0.2s',
-      '&:hover': { transform: 'translateY(-4px)', boxShadow: '0 8px 25px rgba(0,0,0,0.15)' },
-    }}>
-      <CardMedia
-        component={Link}
-        to={`/products/${product.id}`}
-        image={imageUrl}
-        onError={(e) => { e.target.src = PLACEHOLDER; }}
-        sx={{ height: 200, backgroundSize: 'contain', backgroundColor: '#f5f5f5', cursor: 'pointer' }}
-      />
+  // Xử lý chuyển trang khi click vào thẻ
+  const handleCardClick = () => {
+    navigate(`/products/${product.id}`);
+  };
 
-      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <Typography
-          variant="h6"
-          component={Link}
-          to={`/products/${product.id}`}
+  // Ngăn chặn sự kiện click lan ra ngoài (chuyển trang) khi bấm nút
+  const handleAddToCart = (e) => {
+    e.stopPropagation(); 
+    addToCart(product, 1);
+  };
+
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    onDelete?.(product.id);
+  };
+
+  return (
+    <Card 
+      onClick={handleCardClick}
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: '2px', // Bo góc siêu nhỏ chuẩn sàn TMĐT
+        border: '1px solid #f0f0f0',
+        boxShadow: 'none',
+        cursor: 'pointer',
+        transition: 'transform 0.1s, box-shadow 0.1s',
+        '&:hover': { 
+          transform: 'translateY(-2px)', 
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)' 
+        },
+      }}
+    >
+      {/* 1. KHUNG ẢNH VUÔNG VỨC */}
+      <Box sx={{ width: '100%', paddingTop: '100%', position: 'relative', backgroundColor: '#f8f9fa' }}>
+        <Box
+          component="img"
+          src={imageUrl}
+          onError={(e) => { e.target.src = PLACEHOLDER; }}
+          alt={product.name}
           sx={{
-            textDecoration: 'none',
-            color: 'inherit',
-            fontSize: '1rem',
-            fontWeight: 600,
-            mb: 1,
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
+        {/* Badge "Mall" hoặc "Giảm giá" góc trên */}
+        <Box sx={{ 
+          position: 'absolute', top: 4, left: -4, 
+          backgroundColor: '#0f08c4', color: '#fff', 
+          fontSize: '0.7rem', fontWeight: 'bold', 
+          px: 1, py: 0.2, borderRadius: '0 2px 2px 0',
+          boxShadow: '0 1px 2px rgba(0,0,0,0.2)'
+        }}>
+          Yêu thích
+        </Box>
+      </Box>
+
+      {/* 2. KHUNG NỘI DUNG SIÊU GỌN */}
+      <Box sx={{ p: 1, display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+        
+        {/* Tên sản phẩm (Tối đa 2 dòng) */}
+        <Typography
+          sx={{
+            color: '#222',
+            fontSize: '0.85rem',
+            lineHeight: '1.2rem',
+            height: '2.4rem', // Cố định chiều cao 2 dòng
+            mb: 0.5,
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
-            minHeight: '3em',
           }}
         >
           {product.name}
         </Typography>
 
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{
-            mb: 2,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}
-        >
-          {product.description}
-        </Typography>
+        {/* Mochi-chan đã ẩn phần mô tả (description) đi để thẻ không bị dài thoòng lõng nha! */}
 
-        <Box sx={{ mt: 'auto' }}>
-          <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', mb: 1 }}>
-            {Number(product.price).toLocaleString('vi-VN')} ₫
+        {/* Khu vực Giá & Đã bán */}
+        <Box sx={{ mt: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
+          <Typography sx={{ color: '#0f08c4', fontSize: '1rem', fontWeight: 500 }}>
+            <Typography component="span" sx={{ fontSize: '0.75rem', mr: '2px', textDecoration: 'underline' }}>đ</Typography>
+            {Number(product.price).toLocaleString('vi-VN')}
           </Typography>
+          <Typography sx={{ fontSize: '0.7rem', color: '#757575' }}>
+            Đã bán 1,2k
+          </Typography>
+        </Box>
 
+        {/* 3. NÚT BẤM TINH TẾ */}
+        <Box sx={{ display: 'flex', gap: 0.5 }}>
           <Button
-            variant="contained"
+            variant="outlined"
+            size="small"
             fullWidth
-            startIcon={<AddCartIcon />}
             onClick={handleAddToCart}
-            sx={{ backgroundColor: '#ff6b00', '&:hover': { backgroundColor: '#e65100' }, mb: isAdmin ? 1 : 0 }}
+            startIcon={<AddCartIcon sx={{ fontSize: '1rem' }} />}
+            sx={{
+              borderColor: '#0f08c4',
+              color: '#0f08c4',
+              textTransform: 'none',
+              fontSize: '0.75rem',
+              p: '4px',
+              borderRadius: '2px',
+              '&:hover': { backgroundColor: '#fff5f5', borderColor: '#0f08c4' }
+            }}
           >
-            Thêm vào giỏ
+            Thêm
           </Button>
 
           {isAdmin && (
             <Button
-              variant="outlined"
-              fullWidth
+              variant="contained"
               color="error"
-              startIcon={<DeleteIcon />}
-              onClick={() => onDelete?.(product.id)}
+              size="small"
+              onClick={handleDelete}
+              sx={{ minWidth: '36px', p: '4px', borderRadius: '2px', boxShadow: 'none' }}
             >
-              Xóa
+              <DeleteIcon fontSize="small" />
             </Button>
           )}
         </Box>
-      </CardContent>
+      </Box>
     </Card>
   );
 };

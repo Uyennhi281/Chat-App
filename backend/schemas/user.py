@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
+from datetime import datetime
 
 
 class UserBase(BaseModel):
@@ -21,10 +22,15 @@ class UserRead(BaseModel):
     Output schema – KHÔNG bao gồm password_hash.
     Đây là cách bảo vệ dữ liệu nhạy cảm qua Pydantic.
     """
-    id:        int
-    email:     EmailStr
-    full_name: str
-    role:      str
+    id:         int
+    email:      EmailStr
+    full_name:  str
+    role:       str
+    created_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+
+
+class UserRoleUpdate(BaseModel):
+    role: str

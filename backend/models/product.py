@@ -15,6 +15,8 @@ class ProductDB(Base):
     category    = Column(String(50), nullable=False)
     description = Column(Text, nullable=False)
     image_path  = Column(String(255), nullable=False)  # lưu path nội bộ
+    stock       = Column(Integer, nullable=False, default=0)  # số lượng tồn kho
+    sold        = Column(Integer, nullable=False, default=0)  # số lượng đã bán
 
     # Timestamps tự động
     created_at  = Column(DateTime(timezone=True), server_default=func.now())

@@ -38,3 +38,19 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type:   str      = "bearer"
     user:         AuthUser  # frontend dùng để hiển thị tên, role
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ForgotPasswordResponse(BaseModel):
+    message:   str
+    # Dự án chưa cấu hình SMTP để gửi email thật -> tạm thời trả link trực tiếp
+    # (chế độ dev). Khi có SMTP thật, bỏ field này và gửi email thay vào đó.
+    reset_url: Optional[str] = None
+
+
+class ResetPasswordRequest(BaseModel):
+    token:        str
+    new_password: str = Field(..., min_length=6)

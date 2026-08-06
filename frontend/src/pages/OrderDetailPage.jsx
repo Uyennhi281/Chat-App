@@ -5,25 +5,34 @@ import {
   TableCell, TableContainer, TableHead, TableRow, Chip,
   Button, CircularProgress, Alert, Select, MenuItem,
   FormControl, InputLabel, IconButton, Divider,
+  Stepper, Step, StepLabel,
 } from '@mui/material';
 import {
   ArrowBack as BackIcon,
   Add as PlusIcon,
   Remove as MinusIcon,
+  LocalShipping as ShippingIcon,
+  Place as PlaceIcon,
 } from '@mui/icons-material';
 import { ordersApi } from '../api/ordersApi';
 import { useAuth } from '../auth/useAuth';
 
 
-const ALLOWED_STATUSES = ['PLACED', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED'];
+const ALLOWED_STATUSES = ['PLACED', 'PROCESSING', 'SHIPPED', 'COMPLETED', 'CANCELED', 'FAILED'];
 
 const statusColors = {
   PLACED:     'primary',
+  PAID:       'primary',
   PROCESSING: 'warning',
   SHIPPED:    'info',
   COMPLETED:  'success',
   CANCELED:   'error',
+  FAILED:     'error',
 };
+
+// Chu trình vòng đời chuẩn của đơn hàng (Session 16 - NV1)
+const STEP_FLOW   = ['PLACED', 'PAID', 'PROCESSING', 'SHIPPED', 'COMPLETED'];
+const STEP_LABELS = ['Đặt hàng', 'Thanh toán', 'Xử lý đơn', 'Đang giao', 'Hoàn tất'];
 
 
 
@@ -116,7 +125,7 @@ const OrderDetailPage = () => {
             />
           )}
 
-          {order.status !== 'PAID' && order.status !== 'CANCELED' && !isAdmin && (
+          {!['PAID', 'CANCELED', 'COMPLETED', 'FAILED'].includes(order.status) && !isAdmin && (
           <Button
             variant="contained"
             color="success"
@@ -126,7 +135,60 @@ const OrderDetailPage = () => {
             💳 Thanh toán ngay
           </Button>
           )}
-          
+
+        </Box>
+
+        {/* Trạng thái vòng đời đơn hàng */}
+        {order.status === 'CANCELED' || order.status === 'FAILED' ? (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {order.status === 'CANCELED' ? 'Đơn hàng đã bị hủy.' : 'Giao hàng thất bại.'}
+          </Alert>
+        ) : (
+          <Stepper
+            activeStep={Math.max(STEP_FLOW.indexOf(order.status), 0)}
+            alternativeLabel
+            sx={{ mb: 3 }}
+          >
+            {STEP_LABELS.map((label) => (
+              <Step key={label}><StepLabel>{label}</StepLabel></Step>
+            ))}
+          </Stepper>
+        )}
+
+        {/* Thông tin vận chuyển */}
+        <Box sx={{ backgroundColor: '#fafafa', borderRadius: 1, p: 2, mb: 3 }}>
+          <Box display="flex" alignItems="center" gap={1} mb={0.5}>
+            <ShippingIcon fontSize="small" color="action" />
+            {order.shipping_provider === 'GHN' && order.tracking_code ? (
+              <Typography variant="body2">
+                Mã vận đơn GHN:{' '}
+                <a
+                  href={`https://tracking.ghn.vn/?b=${order.tracking_code}`}
+                  target="_blank" rel="noreferrer"
+                >
+                  {order.tracking_code}
+                </a>
+              </Typography>
+            ) : (
+              <Typography variant="body2">
+                Đơn vị vận chuyển: Đội xe ShopHub
+                {order.shipper_name ? ` — Shipper: ${order.shipper_name}` : ''}
+              </Typography>
+            )}
+          </Box>
+
+          {order.delivery_lat != null && order.delivery_lng != null && (
+            <Box display="flex" alignItems="center" gap={1}>
+              <PlaceIcon fontSize="small" color="action" />
+              <a
+                href={`https://www.google.com/maps?q=${order.delivery_lat},${order.delivery_lng}`}
+                target="_blank" rel="noreferrer"
+                style={{ fontSize: 14 }}
+              >
+                Xem vị trí giao hàng gần nhất trên bản đồ
+              </a>
+            </Box>
+          )}
         </Box>
 
         <Divider sx={{ mb: 3 }} />
@@ -189,6 +251,11 @@ const OrderDetailPage = () => {
         {/* Total */}
         <Box display="flex" justifyContent="flex-end">
           <Box textAlign="right">
+            {order.shipping_fee > 0 && (
+              <Typography color="text.secondary" mb={0.5}>
+                Phí vận chuyển: {Number(order.shipping_fee).toLocaleString('vi-VN')} ₫
+              </Typography>
+            )}
             <Typography variant="h5" fontWeight="bold">
               Tổng cộng: {Number(order.total_amount).toLocaleString('vi-VN')} ₫
             </Typography>

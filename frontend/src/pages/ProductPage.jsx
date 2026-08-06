@@ -1,20 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Grid, Container, Typography, Box, Button, TextField,
+  Container, Typography, Box, Button, TextField,
   InputAdornment, Chip, CircularProgress, Alert, Paper,
-  FormControl, InputLabel, Select, MenuItem, Pagination,
-  Stack
+  Pagination, Stack
 } from '@mui/material';
 import {
   Add as AddIcon,
   Search as SearchIcon,
-  FilterList as FilterIcon,
 } from '@mui/icons-material';
 import { productsApi } from '../api/productsApi';
 import { useAuth } from '../auth/useAuth';
 import ProductCard from '../components/ProductCard';
-import CategoryNav from '../components/CategoryNav';
+import CategoryNav, { categoryLabel } from '../components/CategoryNav';
 
 const sortOptions = [
   { value: 'name', label: 'Tên A-Z' },
@@ -34,7 +32,13 @@ const ProductPage = () => {
   const [category, setCategory] = useState(searchParams.get('category') || '');
   const [sortBy, setSortBy] = useState('name');
   const [page, setPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10; // Đổi thành 10 để chia 5 cột cho đẹp (2 hàng)
+
+  useEffect(() => {
+    setCategory(searchParams.get('category') || '');
+    setSearch(searchParams.get('search') || '');
+    setPage(1);
+  }, [searchParams]);
 
   useEffect(() => {
     fetchProducts();
@@ -73,7 +77,7 @@ const ProductPage = () => {
     }
   };
 
-  // Filter and sort
+  // Lọc và sắp xếp
   let filtered = products.filter(p => 
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.description.toLowerCase().includes(search.toLowerCase())
@@ -87,43 +91,24 @@ const ProductPage = () => {
   const paginated = filtered.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   return (
-    <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh', pb: 4 }}>
+    <Box sx={{ backgroundColor: '#f5f5f5', minHeight: '100vh', pb: 6 }}>
+      
       <CategoryNav activeCategory={category} />
 
       <Container maxWidth="xl" sx={{ pt: 3 }}>
-        {/* Header Section */}
-        <Paper elevation={0} sx={{ p: 3, mb: 3, borderRadius: 2 }}>
-          <Box display="flex" justifyContent="space-between" alignItems="center" flexWrap="wrap" gap={2}>
-            <Box>
-              <Typography variant="h4" fontWeight="bold" gutterBottom>
-                Sản phẩm
-              </Typography>
-              <Typography color="text.secondary">
-                {filtered.length} sản phẩm được tìm thấy
-              </Typography>
-            </Box>
-
-            {isAdmin && (
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => navigate('/admin/products/new')}
-                sx={{ backgroundColor: '#4caf50', '&:hover': { backgroundColor: '#388e3c' } }}
-              >
-                Thêm sản phẩm
-              </Button>
-            )}
-          </Box>
-
-          {/* Filter Bar */}
-          <Box display="flex" gap={2} mt={3} flexWrap="wrap">
+        
+        {/* THANH TÌM KIẾM VÀ NÚT THÊM SẢN PHẨM Ở TRÊN CÙNG */}
+        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} gap={2}>
+          <Paper elevation={0} sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400, borderRadius: '2px' }}>
             <TextField
-              placeholder="Tìm kiếm..."
+              placeholder="Tìm kiếm sản phẩm..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearch(e)}
+              fullWidth
               size="small"
-              sx={{ minWidth: 250 }}
+              variant="outlined"
+              sx={{ '& fieldset': { border: 'none' } }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -132,67 +117,136 @@ const ProductPage = () => {
                 ),
               }}
             />
+          </Paper>
 
-            <FormControl size="small" sx={{ minWidth: 150 }}>
-              <InputLabel>Sắp xếp</InputLabel>
-              <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)} label="Sắp xếp">
-                {sortOptions.map(opt => (
-                  <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          {isAdmin && (
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => navigate('/admin/products/new')}
+              sx={{ backgroundColor: '#0f08c4', '&:hover': { backgroundColor: '#d73d1f' }, borderRadius: '2px' }}
+            >
+              Thêm sản phẩm
+            </Button>
+          )}
+        </Box>
 
-            {category && (
-              <Chip 
-                label={`Category: ${category}`} 
-                onDelete={() => { setCategory(''); navigate('/products'); }}
-                color="primary"
-              />
-            )}
-          </Box>
-        </Paper>
+        {/* KẾT QUẢ SẢN PHẨM (Chiếm trọn bề ngang) */}
+        <Box sx={{ width: '100%' }}>
+          
+          {/* Thanh Sắp Xếp ngang */}
+          <Paper elevation={0} sx={{ p: 2, mb: 2, display: 'flex', alignItems: 'center', gap: 2, backgroundColor: '#ededed', borderRadius: '2px' }}>
+            <Typography variant="body2" color="text.secondary">Sắp xếp theo</Typography>
+            
+            <Button 
+              variant={sortBy === 'name' ? 'contained' : 'outlined'} 
+              onClick={() => setSortBy('name')}
+              sx={{ 
+                bgcolor: sortBy === 'name' ? '#0f08c4' : 'white',
+                color: sortBy === 'name' ? 'white' : 'black',
+                borderColor: '#ddd',
+                textTransform: 'none',
+                borderRadius: '2px',
+                '&:hover': { borderColor: '#0f08c4', bgcolor: sortBy === 'name' ? '#d73d1f' : 'white' }
+              }}
+            >
+              Tên A-Z
+            </Button>
+            
+            <Button 
+              variant={sortBy === 'price_asc' ? 'contained' : 'outlined'} 
+              onClick={() => setSortBy('price_asc')}
+              sx={{ 
+                bgcolor: sortBy === 'price_asc' ? '#0f08c4' : 'white',
+                color: sortBy === 'price_asc' ? 'white' : 'black',
+                borderColor: '#ddd',
+                textTransform: 'none',
+                borderRadius: '2px',
+                '&:hover': { borderColor: '#0f08c4', bgcolor: sortBy === 'price_asc' ? '#d73d1f' : 'white' }
+              }}
+            >
+              Giá Thấp - Cao
+            </Button>
 
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            <Button 
+              variant={sortBy === 'price_desc' ? 'contained' : 'outlined'} 
+              onClick={() => setSortBy('price_desc')}
+              sx={{ 
+                bgcolor: sortBy === 'price_desc' ? '#0f08c4' : 'white',
+                color: sortBy === 'price_desc' ? 'white' : 'black',
+                borderColor: '#ddd',
+                textTransform: 'none',
+                borderRadius: '2px',
+                '&:hover': { borderColor: '#0f08c4', bgcolor: sortBy === 'price_desc' ? '#d73d1f' : 'white' }
+              }}
+            >
+              Giá Cao - Thấp
+            </Button>
 
-        {loading ? (
-          <Box display="flex" justifyContent="center" py={8}>
-            <CircularProgress />
-          </Box>
-        ) : (
-          <>
-            <Grid container spacing={3}>
-              {paginated.map((product) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={product.id}>
+            <Box sx={{ flexGrow: 1 }} />
+            
+            {/* Phân trang nhỏ */}
+            <Typography variant="body2">
+              <span style={{ color: '#0f08c4' }}>{page}</span> / {totalPages || 1}
+            </Typography>
+          </Paper>
+
+          {/* Hiển thị Chip báo hiệu đang lọc */}
+          {(category || search) && (
+            <Box mb={2} display="flex" gap={1}>
+              {category && <Chip label={`Danh mục: ${categoryLabel(category)}`} onDelete={() => { setCategory(''); navigate('/products'); }} size="small" />}
+              {search && <Chip label={`Từ khóa: ${search}`} onDelete={() => { setSearch(''); navigate('/products'); }} size="small" />}
+            </Box>
+          )}
+
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+          {/* LƯỚI SẢN PHẨM: CSS Grid 5 cột siêu đều */}
+          {loading ? (
+            <Box display="flex" justifyContent="center" py={8}>
+              <CircularProgress sx={{ color: '#0f08c4' }} />
+            </Box>
+          ) : filtered.length === 0 ? (
+            <Paper elevation={0} sx={{ textAlign: 'center', py: 10, borderRadius: '2px' }}>
+              <Typography variant="h6" color="text.secondary">Không tìm thấy sản phẩm nào khớp với tìm kiếm của bạn.</Typography>
+            </Paper>
+          ) : (
+            <>
+              <Box 
+                sx={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(4, 1fr)', lg: 'repeat(5, 1fr)' }, 
+                  gap: '10px' 
+                }}
+              >
+                {paginated.map((product) => (
                   <ProductCard
+                    key={product.id}
                     product={product}
                     onAddToCart={handleAddToCart}
                     onDelete={isAdmin ? handleDelete : null}
                   />
-                </Grid>
-              ))}
-            </Grid>
-
-            {filtered.length === 0 && (
-              <Box textAlign="center" py={8}>
-                <Typography variant="h6" color="text.secondary">
-                  Không tìm thấy sản phẩm nào
-                </Typography>
+                ))}
               </Box>
-            )}
 
-            {totalPages > 1 && (
-              <Stack alignItems="center" mt={4}>
-                <Pagination
-                  count={totalPages}
-                  page={page}
-                  onChange={(e, v) => setPage(v)}
-                  color="primary"
-                  size="large"
-                />
-              </Stack>
-            )}
-          </>
-        )}
+              {totalPages > 1 && (
+                <Stack alignItems="center" mt={5}>
+                  <Pagination
+                    count={totalPages}
+                    page={page}
+                    onChange={(e, v) => setPage(v)}
+                    sx={{
+                      '& .MuiPaginationItem-root.Mui-selected': {
+                        backgroundColor: '#0f08c4',
+                        color: '#fff',
+                      }
+                    }}
+                  />
+                </Stack>
+              )}
+            </>
+          )}
+        </Box>
       </Container>
     </Box>
   );
